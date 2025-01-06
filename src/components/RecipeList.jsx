@@ -8,6 +8,16 @@ function RecipeList({ recipes }) {
     return null;
   }
 
+  const listVariants = {
+    visible: {
+      transition: {
+        staggerChildren: 0.2,
+      },
+    },
+    hidden: {},
+  };
+  
+
   return (
     <motion.div
       className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
