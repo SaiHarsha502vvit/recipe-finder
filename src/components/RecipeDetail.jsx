@@ -7,14 +7,48 @@ import { motion } from 'framer-motion';
 function RecipeDetail() {
   const detailVariants = {
     hidden: { opacity: 0, y: 50 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { duration: 0.5, when: "beforeChildren", staggerChildren: 0.3 } 
+    },
     exit: { opacity: 0, y: -50, transition: { duration: 0.5 } },
+  };
+
+  const sectionVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { duration: 0.5 } 
+    },
+  };
+
+  const listItemVariants = {
+    hidden: { opacity: 0, x: -30 },
+    visible: { 
+      opacity: 1, 
+      x: 0, 
+      transition: { duration: 0.3 } 
+    },
   };
 
   const { id } = useParams();
   const [recipe, setRecipe] = useState(null);
+  const [steps, setSteps] = useState([]); // New state for steps
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [unit, setUnit] = useState('metric');
+  const [currentStep, setCurrentStep] = useState(0);
+
+  const formatSteps = (instructions) => {
+    if (!instructions) return [];
+    return instructions
+      .split(/[\r\n]+/) // Split by line breaks
+      .map((step) => step.trim())
+      .filter((step) => step !== ''); // Remove empty steps
+  };
 
   const fetchRecipeDetails = async () => {
     setLoading(true);
@@ -25,8 +59,10 @@ function RecipeDetail() {
         `https://www.themealdb.com/api/json/v1/${apiKey}/lookup.php`,
         { params: { i: id } }
       );
-      setRecipe(response.data.meals ? response.data.meals[0] : null);
-      if (!response.data.meals) {
+      if (response.data.meals && response.data.meals[0]) {
+        setRecipe(response.data.meals[0]);
+        setSteps(formatSteps(response.data.meals[0].strInstructions));
+      } else {
         setError('Recipe not found.');
       }
     } catch (error) {
@@ -54,12 +90,34 @@ function RecipeDetail() {
     return ingredients;
   };
 
+  const toggleFavorite = () => {
+    setIsFavorite(!isFavorite);
+    // Implement favorite functionality (e.g., save to localStorage or backend)
+  };
+
+  const toggleUnit = () => {
+    setUnit(unit === 'metric' ? 'imperial' : 'metric');
+    // Implement unit conversion logic if necessary
+  };
+
+  const handleNextStep = () => {
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const handlePrevStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
   if (loading) {
-    return <p className="text-center mt-10 animate-pulse">Loading...</p>;
+    return <p className="text-center mt-10 animate-pulse text-xl">Loading...</p>;
   }
 
   if (error) {
-    return <p className="text-red-500 text-center mt-10">{error}</p>;
+    return <p className="text-red-500 text-center mt-10 text-xl">{error}</p>;
   }
 
   if (!recipe) {
@@ -111,42 +169,164 @@ function RecipeDetail() {
               </motion.li>
             ))}
           </ul>
-          <h3 className="text-2xl font-semibold mb-2 text-green-700">Instructions</h3>
-          <motion.div
-            className="prose lg:prose-xl text-gray-800 mb-4"
-            dangerouslySetInnerHTML={{ __html: formatInstructions(recipe.strInstructions) }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-          ></motion.div>
+          <button
+            onClick={toggleUnit}
+            className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition-colors"
+          >
+            Toggle to {unit === 'metric' ? 'Imperial' : 'Metric'}
+          </button>
+          <h3 className="text-2xl font-semibold mb-2 text-green-700 mt-6">Instructions</h3>
+          <div className="bg-gray-50 p-4 rounded-md shadow-inner">
+            <div className="flex items-center mb-2">
+              <span className="text-gray-600 mr-2">Step {currentStep + 1} of {steps.length}</span>
+              <div className="w-full bg-gray-300 rounded-full h-2">
+                <div
+                  className="bg-green-500 h-2 rounded-full"
+                  style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
+                ></div>
+              </div>
+            </div>
+            <motion.p
+              className="text-gray-800 mb-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              {steps[currentStep]}
+            </motion.p>
+            <div className="flex justify-between">
+              <button
+                onClick={handlePrevStep}
+                disabled={currentStep === 0}
+                className={`px-4 py-2 rounded-full ${
+                  currentStep === 0
+                    ? 'bg-gray-300 cursor-not-allowed'
+                    : 'bg-blue-500 text-white hover:bg-blue-600'
+                } transition-colors`}
+              >
+                Previous
+              </button>
+              <button
+                onClick={handleNextStep}
+                disabled={currentStep === steps.length - 1}
+                className={`px-4 py-2 rounded-full ${
+                  currentStep === steps.length - 1
+                    ? 'bg-gray-300 cursor-not-allowed'
+                    : 'bg-blue-500 text-white hover:bg-blue-600'
+                } transition-colors`}
+              >
+                Next
+              </button>
+            </div>
+          </div>
           {recipe.strYoutube && (
             <motion.div
-              className="mt-4"
+              className="mt-6"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
             >
               <h3 className="text-2xl font-semibold mb-2 text-green-700">Video Tutorial</h3>
-              <div className="aspect-w-16 aspect-h-9">
+              <div className="relative h-0 pb-56.25"> {/* 16:9 Aspect Ratio */}
                 <iframe
                   src={`https://www.youtube.com/embed/${extractYouTubeID(recipe.strYoutube)}`}
                   title="YouTube video player"
                   frameBorder="0"
                   allowFullScreen
-                  className="w-full h-64 md:h-80 rounded-xl shadow-lg"
+                  className="absolute top-0 left-0 w-full h-full rounded-xl shadow-lg"
                 ></iframe>
               </div>
             </motion.div>
           )}
         </div>
       </motion.div>
+
+      {/* Nutritional Information Section */}
+      <motion.div
+        className="mt-8 bg-white bg-opacity-95 rounded-3xl shadow-2xl p-8"
+        variants={sectionVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <h2 className="text-3xl font-bold mb-4 text-green-700">Nutritional Information</h2>
+        <div className="flex flex-wrap justify-around">
+          <motion.div
+            className="m-4 p-4 bg-green-100 rounded-lg shadow-md w-48 text-center"
+            variants={listItemVariants}
+          >
+            <span className="block text-xl font-semibold">Calories</span>
+            <span className="block text-2xl">200 kcal</span>
+          </motion.div>
+          <motion.div
+            className="m-4 p-4 bg-green-100 rounded-lg shadow-md w-48 text-center"
+            variants={listItemVariants}
+          >
+            <span className="block text-xl font-semibold">Protein</span>
+            <span className="block text-2xl">50g</span>
+          </motion.div>
+          <motion.div
+            className="m-4 p-4 bg-green-100 rounded-lg shadow-md w-48 text-center"
+            variants={listItemVariants}
+          >
+            <span className="block text-xl font-semibold">Carbs</span>
+            <span className="block text-2xl">100g</span>
+          </motion.div>
+          <motion.div
+            className="m-4 p-4 bg-green-100 rounded-lg shadow-md w-48 text-center"
+            variants={listItemVariants}
+          >
+            <span className="block text-xl font-semibold">Fats</span>
+            <span className="block text-2xl">30g</span>
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* Reviews Section */}
+      <motion.div
+        className="mt-8 bg-white bg-opacity-95 rounded-3xl shadow-2xl p-8"
+        variants={sectionVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <h2 className="text-3xl font-bold mb-4 text-green-700">Reviews</h2>
+        <div className="space-y-4">
+          {/* Example Review */}
+          <motion.div
+            className="p-4 bg-gray-100 rounded-lg shadow"
+            variants={listItemVariants}
+          >
+            <div className="flex items-center mb-2">
+              {[...Array(5)].map((star, index) => (
+                <svg
+                  key={index}
+                  className={`w-6 h-6 ${index < 4 ? 'text-yellow-400' : 'text-gray-300'}`}
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.95a1 1 0 00.95.69h4.163c.969 0 1.371 1.24.588 1.81l-3.37 2.447a1 1 0 00-.364 1.118l1.286 3.95c.3.921-.755 1.688-1.54 1.118l-3.37-2.447a1 1 0 00-1.176 0l-3.37 2.447c-.784.57-1.838-.197-1.54-1.118l1.286-3.95a1 1 0 00-.364-1.118L2.98 9.377c-.783-.57-.38-1.81.588-1.81h4.163a1 1 0 00.95-.69l1.286-3.95z" />
+                </svg>
+              ))}
+              <span className="ml-2 text-gray-700">4 out of 5</span>
+            </div>
+            <p className="text-gray-800">
+              Delicious recipe! The instructions were clear and easy to follow. My family loved it.
+            </p>
+            <span className="text-sm text-gray-500">- Jane Doe</span>
+          </motion.div>
+          {/* Add more reviews as needed */}
+        </div>
+      </motion.div>
     </motion.div>
   );
 }
 
-const formatInstructions = (instructions) => {
-  if (!instructions) return 'No instructions available.';
-  return instructions.replace(/\r\n/g, '<br />');
+const formatSteps = (instructions) => {
+  if (!instructions) return [];
+  return instructions
+    .split(/[\r\n]+/) // Split by line breaks
+    .map((step) => step.trim())
+    .filter((step) => step !== ''); // Remove empty steps
 };
 
 const extractYouTubeID = (url) => {
@@ -158,5 +338,3 @@ const extractYouTubeID = (url) => {
 
 export default RecipeDetail;
 // No additional code needed.
-
-
