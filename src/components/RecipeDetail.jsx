@@ -1,4 +1,3 @@
-// src/components/RecipeDetail.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, Link } from 'react-router-dom';
@@ -126,7 +125,7 @@ function RecipeDetail() {
 
   return (
     <motion.div
-      className="min-h-screen bg-gradient-to-r from-green-200 to-blue-400 p-6"
+      className="min-h-screen bg-gradient-to-r from-green-100 to-blue-100 p-6"
       variants={detailVariants}
       initial="hidden"
       animate="visible"
@@ -134,47 +133,48 @@ function RecipeDetail() {
     >
       <Link
         to="/"
-        className="text-white underline mb-6 inline-block hover:text-gray-200 transition"
+        className="text-blue-600 underline mb-6 inline-block hover:text-blue-800 transition-colors"
       >
         &larr; Back to Home
       </Link>
       <motion.div
-        className="bg-white bg-opacity-90 rounded-3xl shadow-2xl p-8 flex flex-col md:flex-row"
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.5 }}
+        className="bg-white bg-opacity-95 rounded-3xl shadow-2xl p-8 flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-8"
+        variants={sectionVariants}
       >
         <motion.img
           src={recipe.strMealThumb}
           alt={recipe.strMeal}
           className="w-full md:w-1/2 rounded-xl object-cover shadow-lg"
-          whileHover={{ scale: 1.05, rotate: 2 }}
+          whileHover={{ scale: 1.05, rotate: 1 }}
           transition={{ duration: 0.3 }}
         />
-        <div className="mt-6 md:mt-0 md:ml-8 flex-1">
-          <h2 className="text-5xl font-extrabold mb-4 text-gray-800 animate-pulse">
-            {recipe.strMeal}
-          </h2>
-          <h3 className="text-2xl font-semibold mb-2 text-green-700">Ingredients</h3>
-          <ul className="list-disc list-inside mb-4">
-            {getIngredients().map((ing, index) => (
-              <motion.li
-                key={index}
-                className="text-gray-700"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                {ing}
-              </motion.li>
-            ))}
-          </ul>
-          <button
-            onClick={toggleUnit}
-            className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition-colors"
+        <div className="flex-1">
+          <motion.h2
+            className="text-4xl font-extrabold mb-4 text-gray-800"
+            variants={sectionVariants}
           >
-            Toggle to {unit === 'metric' ? 'Imperial' : 'Metric'}
-          </button>
+            {recipe.strMeal}
+          </motion.h2>
+          <motion.div variants={sectionVariants}>
+            <h3 className="text-2xl font-semibold mb-2 text-green-700">Ingredients</h3>
+            <ul className="list-disc list-inside mb-4">
+              {getIngredients().map((ing, index) => (
+                <motion.li
+                  key={index}
+                  className="text-gray-700 mb-1"
+                  variants={listItemVariants}
+                >
+                  {ing}
+                </motion.li>
+              ))}
+            </ul>
+            <button
+              onClick={toggleUnit}
+              className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition-colors"
+            >
+              Toggle to {unit === 'metric' ? 'Imperial' : 'Metric'}
+            </button>
+          </motion.div>
           <h3 className="text-2xl font-semibold mb-2 text-green-700 mt-6">Instructions</h3>
           <div className="bg-gray-50 p-4 rounded-md shadow-inner">
             <div className="flex items-center mb-2">
@@ -219,7 +219,7 @@ function RecipeDetail() {
               </button>
             </div>
           </div>
-          {recipe.strYoutube && (
+          {recipe.strYoutube && extractYouTubeID(recipe.strYoutube) && (
             <motion.div
               className="mt-6"
               initial={{ opacity: 0 }}
@@ -227,13 +227,13 @@ function RecipeDetail() {
               transition={{ delay: 0.6 }}
             >
               <h3 className="text-2xl font-semibold mb-2 text-green-700">Video Tutorial</h3>
-              <div className="relative h-0 pb-56.25"> {/* 16:9 Aspect Ratio */}
+              <div className="aspect-video relative rounded-xl shadow-lg overflow-hidden">
                 <iframe
                   src={`https://www.youtube.com/embed/${extractYouTubeID(recipe.strYoutube)}`}
                   title="YouTube video player"
                   frameBorder="0"
                   allowFullScreen
-                  className="absolute top-0 left-0 w-full h-full rounded-xl shadow-lg"
+                  className="absolute top-0 left-0 w-full h-full"
                 ></iframe>
               </div>
             </motion.div>
