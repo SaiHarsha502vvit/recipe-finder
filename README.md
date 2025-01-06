@@ -97,3 +97,5 @@ We welcome contributions to the project. If you would like to contribute, please
 ## Deployment
 
 The application is deployed and can be accessed at [Recipe Finder](https://recipe-wizard-by-ash.netlify.app/).
+https://recipe-wizard-by-ash.netlify.app/
+
