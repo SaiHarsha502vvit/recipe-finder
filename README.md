@@ -53,16 +53,16 @@ Mark recipes as favorites to easily access them later from the favorites section
 ## Images
 
 ### Home Page
-![Home Page](../recipe-finder/public/Home-Page.jpg)
+![Home Page](./public/Home-Page.jpg)
 
 ### Search Results
-![Search Results](../recipe-finder/public/Search-Results.jpg)
+![Search Results](./public/Search-Results.jpg)
 
 ### Recipe Details
-![Recipe Details](../recipe-finder/public/Recipe-With-Step-By-Step-Guidence.jpg)
+![Recipe Details](./public/Recipe-With-Step-By-Step-Guidence.jpg)
 
 ### Youtube Video
-![Recipe With Youtub video](../recipe-finder//public/Recipe-With-Yt-and-Nutrients.jpg)
+![Recipe With Youtube Video](./public/Recipe-With-Yt-and-Nutrients.jpg)
 
 ## Getting Started
 
@@ -93,3 +93,7 @@ To get started with the project, follow these steps:
 ## Contributing
 
 We welcome contributions to the project. If you would like to contribute, please fork the repository and submit a pull request.
+
+## Deployment
+
+The application is deployed and can be accessed at [Recipe Finder](https://recipe-wizard-by-ash.netlify.app/).
