@@ -55,7 +55,7 @@ function Home() {
       className="min-h-screen bg-gray-100 p-4"
     >
       <section className="text-center mb-12">
-        <h1 className="text-5xl font-bold text-green-600 mb-4">Welcome to Recipe Finder</h1>
+        <h1 className="text-5xl font-bold text-green-600 mb-4">Welcome to Flavour Finder</h1>
         <p className="text-lg text-gray-700">
           Discover delicious recipes and explore the art of cooking. Enhance your culinary skills with our curated collection.
         </p>
