@@ -1,13 +1,15 @@
 // src/components/Home.jsx
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import SearchBar from './SearchBar';
 import RecipeList from './RecipeList';
 import { motion } from 'framer-motion';
+
 function Home() {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const searchCache = useRef({}); // Cache for full search results
 
   const searchRecipes = async (query) => {
     if (!query.trim()) {
@@ -18,6 +20,12 @@ function Home() {
     setLoading(true);
     setError(null);
     try {
+      // Check if this query result is already cached
+      if (searchCache.current[query]) {
+        setRecipes(searchCache.current[query]);
+        setLoading(false);
+        return;
+      }
       const apiKey = import.meta.env.VITE_MEALDB_API_KEY || '1';
       const response = await axios.get(
         `https://www.themealdb.com/api/json/v1/${apiKey}/search.php`,
@@ -25,8 +33,11 @@ function Home() {
           params: { s: query },
         }
       );
-      setRecipes(response.data.meals || []);
-      if (!response.data.meals) {
+      const meals = response.data.meals || [];
+      // Save to cache for future queries
+      searchCache.current[query] = meals;
+      setRecipes(meals);
+      if (meals.length === 0) {
         setError('No recipes found. Please try a different search term.');
       }
     } catch (error) {
