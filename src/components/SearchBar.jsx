@@ -105,7 +105,7 @@ function SearchBar({ onSearch }) {
           {suggestions.map((suggestion) => (
             <div
               key={suggestion.id}
-              className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
+              className="px-4 py-2 hover:bg-green-400 cursor-pointer"
               onClick={() => handleSuggestionClick(suggestion)}
             >
               {suggestion.name}

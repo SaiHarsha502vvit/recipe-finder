@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
-function RecipeDetail() {
+function RecipeDetails() {
   const detailVariants = {
     hidden: { opacity: 0, y: 50 },
     visible: { 
@@ -336,5 +336,5 @@ const extractYouTubeID = (url) => {
   return match && match[2].length === 11 ? match[2] : null;
 };
 
-export default RecipeDetail;
+export default RecipeDetails;
 // No additional code needed.
